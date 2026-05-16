@@ -63,7 +63,16 @@ TSharedPtr<FJsonObject> FUnrealMCPProjectCommands::HandleCreateInputMapping(cons
 
     // Add the mapping
     InputSettings->AddActionMapping(ActionMapping);
-    InputSettings->SaveConfig();
+
+    bool bSave = true;
+    if (Params->HasField(TEXT("save")))
+    {
+        bSave = Params->GetBoolField(TEXT("save"));
+    }
+    if (bSave)
+    {
+        InputSettings->SaveConfig();
+    }
 
     TSharedPtr<FJsonObject> ResultObj = MakeShared<FJsonObject>();
     ResultObj->SetStringField(TEXT("action_name"), ActionName);

@@ -13,6 +13,18 @@
 #include "Commands/UnrealMCPBlueprintNodeCommands.h"
 #include "Commands/UnrealMCPProjectCommands.h"
 #include "Commands/UnrealMCPUMGCommands.h"
+#include "Commands/UnrealMCPMaterialCommands.h"
+#include "Commands/UnrealMCPAudioCommands.h"
+#include "Commands/UnrealMCPInputCommands.h"
+#include "Commands/UnrealMCPAssetCommands.h"
+#include "Commands/UnrealMCPActorQueryCommands.h"
+#include "Commands/UnrealMCPLevelCommands.h"
+#include "Commands/UnrealMCPAnimationCommands.h"
+#include "Commands/UnrealMCPNiagaraCommands.h"
+#include "Commands/UnrealMCPWorldCommands.h"
+#include "Commands/UnrealMCPDataAssetCommands.h"
+#include "Commands/UnrealMCPAnimGraphCommands.h"
+#include "Commands/UnrealMCPChooserCommands.h"
 #include "UnrealMCPBridge.generated.h"
 
 class FMCPServerRunnable;
@@ -61,4 +73,16 @@ private:
 	TSharedPtr<FUnrealMCPBlueprintNodeCommands> BlueprintNodeCommands;
 	TSharedPtr<FUnrealMCPProjectCommands> ProjectCommands;
 	TSharedPtr<FUnrealMCPUMGCommands> UMGCommands;
+	TSharedPtr<FUnrealMCPMaterialCommands> MaterialCommands;
+	TSharedPtr<FUnrealMCPAudioCommands> AudioCommands;
+	TSharedPtr<FUnrealMCPInputCommands> InputCommands;
+	TSharedPtr<FUnrealMCPAssetCommands> AssetCommands;
+	TSharedPtr<FUnrealMCPActorQueryCommands> ActorQueryCommands;
+	TSharedPtr<FUnrealMCPLevelCommands> LevelCommands;
+	TSharedPtr<FUnrealMCPAnimationCommands> AnimationCommands;
+	TSharedPtr<FUnrealMCPNiagaraCommands> NiagaraCommands;
+	TSharedPtr<FUnrealMCPWorldCommands> WorldCommands;
+	TSharedPtr<FUnrealMCPDataAssetCommands> DataAssetCommands;
+	TSharedPtr<FUnrealMCPAnimGraphCommands> AnimGraphCommands;
+	TSharedPtr<FUnrealMCPChooserCommands> ChooserCommands;
 }; 

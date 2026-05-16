@@ -1,17 +1,17 @@
 {
 	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0",
-	"FriendlyName": "UnrealMCP",
-	"Description": "Model Context Protocol implementation for Unreal Engine",
+	"Version": 2,
+	"VersionName": "2.0",
+	"FriendlyName": "Unreal MCP",
+	"Description": "Model Context Protocol bridge for Unreal Engine 5. Exposes ~120 editor tools (assets, blueprints, anim graphs, materials, sequencer, PIE input driving, audio, Niagara, data assets, chooser tables) to MCP clients like Claude Code, Cursor, and Claude Desktop.",
 	"Category": "Editor",
-	"CreatedBy": "Your Name",
-	"CreatedByURL": "",
-	"DocsURL": "",
+	"CreatedBy": "NarsBars",
+	"CreatedByURL": "https://github.com/NarsBars",
+	"DocsURL": "https://github.com/NarsBars/unreal-mcp",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://github.com/NarsBars/unreal-mcp/issues",
 	"CanContainContent": true,
-	"IsBetaVersion": false,
+	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
 	"Installed": false,
 	"Modules": [
@@ -30,6 +30,22 @@
 		{
 			"Name": "EditorScriptingUtilities",
 			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "Chooser",
+			"Enabled": true
 		}
 	]
-} 
+}

@@ -31,4 +31,28 @@ private:
     // Editor viewport commands
     TSharedPtr<FJsonObject> HandleFocusViewport(const TSharedPtr<FJsonObject>& Params);
     TSharedPtr<FJsonObject> HandleTakeScreenshot(const TSharedPtr<FJsonObject>& Params);
-}; 
+
+    // PIE control commands
+    TSharedPtr<FJsonObject> HandleStartPIE(const TSharedPtr<FJsonObject>& Params);
+    TSharedPtr<FJsonObject> HandleStopPIE(const TSharedPtr<FJsonObject>& Params);
+    TSharedPtr<FJsonObject> HandleGetPIEState(const TSharedPtr<FJsonObject>& Params);
+
+    // PIE input driving (start-and-poll model — see Plugins/UnrealMCP/Python/README.md)
+    TSharedPtr<FJsonObject> HandlePIEDriveInputStart(const TSharedPtr<FJsonObject>& Params);
+    TSharedPtr<FJsonObject> HandlePIESimulateKeyStart(const TSharedPtr<FJsonObject>& Params);
+    TSharedPtr<FJsonObject> HandlePIEGetJobResult(const TSharedPtr<FJsonObject>& Params);
+    TSharedPtr<FJsonObject> HandlePIESetControlRotation(const TSharedPtr<FJsonObject>& Params);
+    TSharedPtr<FJsonObject> HandlePIECancelJob(const TSharedPtr<FJsonObject>& Params);
+
+    // Console command execution
+    TSharedPtr<FJsonObject> HandleExecuteConsoleCommand(const TSharedPtr<FJsonObject>& Params);
+
+    // Log query
+    TSharedPtr<FJsonObject> HandleGetEditorLog(const TSharedPtr<FJsonObject>& Params);
+
+    // Python scripting
+    TSharedPtr<FJsonObject> HandleExecutePython(const TSharedPtr<FJsonObject>& Params);
+
+    // Editor lifecycle
+    TSharedPtr<FJsonObject> HandleCloseEditor(const TSharedPtr<FJsonObject>& Params);
+};

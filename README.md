@@ -21,6 +21,50 @@ This project is currently in an **EXPERIMENTAL** state. The API, functionality, 
 - Documentation may be outdated or missing
 - Production use is not recommended at this time
 
+## NarsBars / unreal-mcp — Fork Additions
+
+This is an actively-maintained fork of [@chongdashu](https://github.com/chongdashu)'s [unreal-mcp](https://github.com/chongdashu/unreal-mcp) (upstream last updated ~April 2025) with substantially expanded tool coverage built for **agent-driven UE5 editor automation** on a production game project.
+
+**Surface area:** **~120 MCP tools across 13 Python categories**, backed by 17 C++ command modules. Counted from `@mcp.tool()` decorators in [`Python/tools/`](Python/tools/):
+
+| Category | Tools | What it covers |
+|---|---:|---|
+| **animation_tools** | 35 | Anim BP creation, anim graph node authoring, state machines, transitions, blend nodes, motion-matching configuration, history collector setup, chooser tables, anim notifies, mirroring properties |
+| **material_tools** | 19 | Material expression authoring + connections, material instance parameters (scalar/vector/texture/static-switch), custom HLSL expressions, parameter collections, recompile flow |
+| **editor_tools** | 13 | Editor lifecycle, project info, log retrieval, console commands, embedded Python, screenshots, PIE state + PIE input driving (drive movement, simulate keys, set control rotation) |
+| **data_asset_tools** | 11 | Generic UDataAsset creation, property get/set, structured imports for any UPROPERTY shape |
+| **node_tools** | 9 | K2 node spawning, smart pin connection, blueprint event/function node authoring |
+| **asset_tools** | 8 | Bulk creation, dependency inspection, search, rename/move, duplicate, delete |
+| **umg_tools** | 6 | UMG widget editing surface |
+| **blueprint_tools** | 5 | Blueprint creation, function/variable management, component attachment |
+| **audio_tools** | 4 | Sound class hierarchy, sound mix authoring |
+| **input_tools** | 4 | Enhanced Input action/mapping context creation |
+| **chooser_tools** | 2 | Chooser table reading + column value editing |
+| **niagara_tools** | 2 | Niagara emitter + system creation |
+| **project_tools** | 1 | Project-wide info retrieval |
+
+### Notable additions over upstream
+
+- **PIE Input Driving** (`pie_drive_input`, `pie_simulate_key`, `pie_set_control_rotation`) — C++ async ticker wrapped in a polling Python facade. Drives an actual gameplay session in PIE, samples pawn state (location, velocity, control rotation, optional GMC movement mode + active tags) at fixed intervals, and pins yaw/pitch while moving. Lets agents run regression checks on movement, abilities, and animation.
+- **Multi-project / multi-editor support** — `-MCPPort=<port>` editor-side launch arg + `UNREAL_MCP_HOST` / `UNREAL_MCP_PORT` / `UNREAL_MCP_NAME` env vars enable two or more UE editors to run side-by-side on distinct MCP ports, each surfaced as its own FastMCP server instance.
+- **Animation-pipeline depth** — graph node authoring, state machine editing, motion-matching + history collector + chooser table configuration, anim notify and notify-state management. Enough surface for agent-driven anim graph construction beyond simple property setting.
+- **Material-pipeline depth** — expression-level authoring (add, connect, disconnect, properties, custom HLSL), all four material-instance parameter types, parameter collection creation, full recompile control.
+- **Smart pin connection** (`smart_connect_pins`) — type-aware blueprint pin resolution that picks the right pin pair from a partial spec, reducing common LLM mistakes when wiring K2 graphs.
+- **Optional GMC support** — auto-detected at build time. The PIE driver picks up [Generic Movement Component](https://www.unrealengine.com/marketplace/en-US/product/generic-movement-component-gmc) movement mode + active gameplay tags when GMC is present in the project's `Plugins/` folder. Compiles cleanly without GMC; non-GMC users just don't get those telemetry fields.
+
+### What stays from upstream
+
+The foundation — TCP bridge transport, command dispatch architecture, base blueprint and asset commands — comes from the upstream project. All credit for the original design and initial implementation goes to [@chongdashu](https://github.com/chongdashu).
+
+### License
+
+Upstream is MIT-licensed. This fork remains MIT-licensed. Additions made in this fork carry the same MIT terms; see [LICENSE](LICENSE) for the full notice and attribution to [@chongdashu](https://github.com/chongdashu) for the original work.
+
+### Status
+
+Tracking UE 5.7. Tested against an active production game project. The fork is maintained independently because the projects' use cases have diverged; PRs back to upstream are welcome.
+
+
 ## 🌟 Overview
 
 The Unreal MCP integration provides comprehensive tools for controlling Unreal Engine through natural language:

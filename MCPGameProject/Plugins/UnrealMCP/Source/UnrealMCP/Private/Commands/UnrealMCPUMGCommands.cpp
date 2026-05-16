@@ -69,6 +69,8 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleCreateUMGWidgetBlueprint(co
 		return FUnrealMCPCommonUtils::CreateErrorResponse(TEXT("Missing 'name' parameter"));
 	}
 
+	if (auto PIEError = FUnrealMCPCommonUtils::EnsurePIEStopped()) return PIEError;
+
 	// Create the full asset path
 	FString PackagePath = TEXT("/Game/Widgets/");
 	FString AssetName = BlueprintName;
@@ -119,6 +121,16 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleCreateUMGWidgetBlueprint(co
 	// Compile the blueprint
 	FKismetEditorUtilities::CompileBlueprint(WidgetBlueprint);
 
+	bool bSave = true;
+	if (Params->HasField(TEXT("save")))
+	{
+		bSave = Params->GetBoolField(TEXT("save"));
+	}
+	if (bSave)
+	{
+		UEditorAssetLibrary::SaveAsset(FullPath, false);
+	}
+
 	// Create success response
 	TSharedPtr<FJsonObject> ResultObj = MakeShared<FJsonObject>();
 	ResultObj->SetStringField(TEXT("name"), BlueprintName);
@@ -148,6 +160,8 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleAddTextBlockToWidget(const 
 	{
 		return FUnrealMCPCommonUtils::CreateErrorResponse(FString::Printf(TEXT("Widget Blueprint '%s' not found"), *BlueprintName));
 	}
+
+	if (auto PIEError = FUnrealMCPCommonUtils::EnsurePIEStopped()) return PIEError;
 
 	// Get optional parameters
 	FString InitialText = TEXT("New Text Block");
@@ -188,6 +202,17 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleAddTextBlockToWidget(const 
 	WidgetBlueprint->MarkPackageDirty();
 	FKismetEditorUtilities::CompileBlueprint(WidgetBlueprint);
 
+	bool bSave = true;
+	if (Params->HasField(TEXT("save")))
+	{
+		bSave = Params->GetBoolField(TEXT("save"));
+	}
+	if (bSave)
+	{
+		FString WidgetPath = WidgetBlueprint->GetOutermost()->GetName();
+		UEditorAssetLibrary::SaveAsset(WidgetPath, false);
+	}
+
 	// Create success response
 	TSharedPtr<FJsonObject> ResultObj = MakeShared<FJsonObject>();
 	ResultObj->SetStringField(TEXT("widget_name"), WidgetName);
@@ -211,6 +236,8 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleAddWidgetToViewport(const T
 	{
 		return FUnrealMCPCommonUtils::CreateErrorResponse(FString::Printf(TEXT("Widget Blueprint '%s' not found"), *BlueprintName));
 	}
+
+	if (auto PIEError = FUnrealMCPCommonUtils::EnsurePIEStopped()) return PIEError;
 
 	// Get optional Z-order parameter
 	int32 ZOrder = 0;
@@ -271,6 +298,8 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleAddButtonToWidget(const TSh
 		return Response;
 	}
 
+	if (auto PIEError = FUnrealMCPCommonUtils::EnsurePIEStopped()) return PIEError;
+
 	// Create Button widget
 	UButton* Button = NewObject<UButton>(WidgetBlueprint->GeneratedClass->GetDefaultObject(), UButton::StaticClass(), *WidgetName);
 	if (!Button)
@@ -312,7 +341,16 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleAddButtonToWidget(const TSh
 
 	// Save the Widget Blueprint
 	FKismetEditorUtilities::CompileBlueprint(WidgetBlueprint);
-	UEditorAssetLibrary::SaveAsset(BlueprintPath, false);
+
+	bool bSave = true;
+	if (Params->HasField(TEXT("save")))
+	{
+		bSave = Params->GetBoolField(TEXT("save"));
+	}
+	if (bSave)
+	{
+		UEditorAssetLibrary::SaveAsset(BlueprintPath, false);
+	}
 
 	Response->SetBoolField(TEXT("success"), true);
 	Response->SetStringField(TEXT("widget_name"), WidgetName);
@@ -353,6 +391,8 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleBindWidgetEvent(const TShar
 		Response->SetStringField(TEXT("error"), FString::Printf(TEXT("Failed to load Widget Blueprint: %s"), *BlueprintPath));
 		return Response;
 	}
+
+	if (auto PIEError = FUnrealMCPCommonUtils::EnsurePIEStopped()) return PIEError;
 
 	// Create the event graph if it doesn't exist
 	UEdGraph* EventGraph = FBlueprintEditorUtils::FindEventGraph(WidgetBlueprint);
@@ -434,7 +474,16 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleBindWidgetEvent(const TShar
 
 	// Save the Widget Blueprint
 	FKismetEditorUtilities::CompileBlueprint(WidgetBlueprint);
-	UEditorAssetLibrary::SaveAsset(BlueprintPath, false);
+
+	bool bSave = true;
+	if (Params->HasField(TEXT("save")))
+	{
+		bSave = Params->GetBoolField(TEXT("save"));
+	}
+	if (bSave)
+	{
+		UEditorAssetLibrary::SaveAsset(BlueprintPath, false);
+	}
 
 	Response->SetBoolField(TEXT("success"), true);
 	Response->SetStringField(TEXT("event_name"), EventName);
@@ -536,7 +585,16 @@ TSharedPtr<FJsonObject> FUnrealMCPUMGCommands::HandleSetTextBlockBinding(const T
 
 	// Save the Widget Blueprint
 	FKismetEditorUtilities::CompileBlueprint(WidgetBlueprint);
-	UEditorAssetLibrary::SaveAsset(BlueprintPath, false);
+
+	bool bSave = true;
+	if (Params->HasField(TEXT("save")))
+	{
+		bSave = Params->GetBoolField(TEXT("save"));
+	}
+	if (bSave)
+	{
+		UEditorAssetLibrary::SaveAsset(BlueprintPath, false);
+	}
 
 	Response->SetBoolField(TEXT("success"), true);
 	Response->SetStringField(TEXT("binding_name"), BindingName);

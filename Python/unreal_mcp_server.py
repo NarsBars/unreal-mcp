@@ -4,7 +4,9 @@ Unreal Engine MCP Server
 A simple MCP server for interacting with Unreal Engine.
 """
 
+import importlib
 import logging
+import os
 import socket
 import sys
 import json
@@ -12,20 +14,24 @@ from contextlib import asynccontextmanager
 from typing import AsyncIterator, Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
 
-# Configure logging with more detailed format
+# Configuration — defaults match the legacy single-project setup; override via env vars
+# to point at a second editor instance launched with `-MCPPort=<port>`.
+UNREAL_HOST = os.environ.get("UNREAL_MCP_HOST", "127.0.0.1")
+UNREAL_PORT = int(os.environ.get("UNREAL_MCP_PORT", "55557"))
+UNREAL_MCP_NAME = os.environ.get("UNREAL_MCP_NAME", "UnrealMCP")
+
+# Configure logging with more detailed format. Log file name includes the server
+# name so two concurrent instances (e.g. UnrealMCP + UnrealMCP_GASP) don't share a file.
+_log_filename = f"unreal_mcp_{UNREAL_MCP_NAME}.log" if UNREAL_MCP_NAME != "UnrealMCP" else "unreal_mcp.log"
 logging.basicConfig(
     level=logging.DEBUG,  # Change to DEBUG level for more details
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
     handlers=[
-        logging.FileHandler('unreal_mcp.log'),
+        logging.FileHandler(_log_filename),
         # logging.StreamHandler(sys.stdout) # Remove this handler to unexpected non-whitespace characters in JSON
     ]
 )
-logger = logging.getLogger("UnrealMCP")
-
-# Configuration
-UNREAL_HOST = "127.0.0.1"
-UNREAL_PORT = 55557
+logger = logging.getLogger(UNREAL_MCP_NAME)
 
 class UnrealConnection:
     """Connection to an Unreal Engine instance."""
@@ -81,7 +87,7 @@ class UnrealConnection:
     def receive_full_response(self, sock, buffer_size=4096) -> bytes:
         """Receive a complete response from Unreal, handling chunked data."""
         chunks = []
-        sock.settimeout(5)  # 5 second timeout
+        sock.settimeout(120)  # 120 second timeout — game thread dispatch can be slow
         try:
             while True:
                 chunk = sock.recv(buffer_size)
@@ -239,7 +245,7 @@ def get_unreal_connection() -> Optional[UnrealConnection]:
 async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
     """Handle server startup and shutdown."""
     global _unreal_connection
-    logger.info("UnrealMCP server starting up")
+    logger.info(f"{UNREAL_MCP_NAME} server starting up (target {UNREAL_HOST}:{UNREAL_PORT})")
     try:
         _unreal_connection = get_unreal_connection()
         if _unreal_connection:
@@ -249,7 +255,7 @@ async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Error connecting to Unreal Engine on startup: {e}")
         _unreal_connection = None
-    
+
     try:
         yield {}
     finally:
@@ -258,26 +264,35 @@ async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
             _unreal_connection = None
         logger.info("Unreal MCP server shut down")
 
-# Initialize server
+# Initialize server. Server name is overridable via UNREAL_MCP_NAME so a second
+# instance (e.g. pointing at GASP on port 55558) registers under a distinct name.
 mcp = FastMCP(
-    "UnrealMCP",
+    UNREAL_MCP_NAME,
     description="Unreal Engine integration via Model Context Protocol",
     lifespan=server_lifespan
 )
 
 # Import and register tools
-from tools.editor_tools import register_editor_tools
-from tools.blueprint_tools import register_blueprint_tools
-from tools.node_tools import register_blueprint_node_tools
-from tools.project_tools import register_project_tools
-from tools.umg_tools import register_umg_tools
 
-# Register tools
-register_editor_tools(mcp)
-register_blueprint_tools(mcp)
-register_blueprint_node_tools(mcp)
-register_project_tools(mcp)
-register_umg_tools(mcp)  
+_TOOL_MODULES = [
+    ("tools.editor_tools",      "register_editor_tools"),
+    ("tools.blueprint_tools",   "register_blueprint_tools"),
+    ("tools.node_tools",        "register_blueprint_node_tools"),
+    # ("tools.project_tools",     "register_project_tools"),  # Legacy input - disabled
+    # ("tools.umg_tools",         "register_umg_tools"),  # UMG widgets - disabled
+    ("tools.material_tools",    "register_material_tools"),
+    ("tools.audio_tools",       "register_audio_tools"),
+    # ("tools.input_tools",       "register_input_tools"),  # Enhanced Input - disabled
+    ("tools.asset_tools",       "register_asset_tools"),
+    ("tools.animation_tools",   "register_animation_tools"),
+    ("tools.niagara_tools",     "register_niagara_tools"),
+    ("tools.data_asset_tools",  "register_data_asset_tools"),
+    ("tools.chooser_tools",     "register_chooser_tools"),
+]
+
+for _module_path, _register_func_name in _TOOL_MODULES:
+    _module = importlib.import_module(_module_path)
+    getattr(_module, _register_func_name)(mcp)
 
 @mcp.prompt()
 def info():

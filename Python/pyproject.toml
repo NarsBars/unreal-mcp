@@ -10,7 +10,8 @@ dependencies = [
   "uvicorn",
   "fastapi",
   "pydantic>=2.6.1",
-  "requests"
+  "requests",
+  "watchfiles>=1.0.0"
 ]
 
 [build-system]
